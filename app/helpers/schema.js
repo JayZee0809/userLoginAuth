@@ -3,7 +3,6 @@ const countries = require('../libs/countries.json');
 
 const userNameRegx = /^[0-9]*\s?[a-zA-Z]+[a-zA-Z0-9\s.]*$/;
 const passwordPattern = /^(?=.*[A-Za-z\d])(?=.*\d)[@#$A-Za-z\d]{8,}$/;
-// Password must be strong. At least one upper case alphabet. At least one lower case alphabet. At least one digit. At least one special character. Minimum eight in length
 
 // country must be from the list found at countries.json
 const countryNameValidate = (name) => countries[name];

@@ -66,12 +66,12 @@ exports.postLogin = async (req, res) => {
             const loginAt = new Date();
 
             // update login date
-            await UserService.updateUser(req, { login_token: null, loginAt }, user._id);
+            await UserService.updateUser(req, { access_token: null, loginAt }, user._id);
 
             // create user login token
             await UserService.createUserLoginToken(req, {
                 user_id: user._id,
-                login_token: loginToken,
+                access_token: loginToken,
                 loginAt
             });
 
@@ -104,7 +104,7 @@ exports.postLogout = async (req, res, next) => {
             case null:
                 return badRequestResponse(req, res, `No user exists with this email ${email}`);
             default:
-                await UserService.updateUserLoginToken(req, { login_token: null }, user._id);
+                await UserService.updateUserLoginToken(req, { access_token: null }, user._id);
                 return okResponse(req, res, `User with ${email} has been logged out successfully.`);
         }
     } catch (err) {

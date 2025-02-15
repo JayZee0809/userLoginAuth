@@ -7,7 +7,7 @@ const UserLoginTokenSchema = new mongoose.Schema({
         required: true
     },
 
-    login_token : {
+    access_token : {
         type: String,
         required: true
     },

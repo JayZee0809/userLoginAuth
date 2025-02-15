@@ -123,7 +123,7 @@ module.exports = class UserService {
             const tokenDetails = await UserLoginToken.update({ _id: id }, data, { new: true })
 
             if(!tokenDetails) throw new Error(`User not found...`);
-            if(tokenDetails.login_token) throw new Error(`User not found...`);
+            if(tokenDetails.access_token) throw new Error(`User not found...`);
             return true;
         } catch (error) {
             
