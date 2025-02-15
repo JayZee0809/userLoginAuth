@@ -15,7 +15,7 @@ class Jwt {
                 if (decoded) {
                     return resolve(decoded);
                 }
-                return reject(new Error('Token is expire').message);
+                return reject(new Error('Token has expired').message);
             });
         });
     }

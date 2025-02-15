@@ -22,13 +22,12 @@ exports.postLogin = async (req, res) => {
     }
 
     const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    console.log('auth... ', auth);
+    
     const email = auth[0];
     const password = auth[1];
 
     logger.info(req, `authHeader... ${authHeader}`, 'postLogin');
     logger.info(req, `email... ${email}`, 'postLogin');
-    logger.info(req, `password... ${password}`, 'postLogin');
 
     const { error } = validateLoginParams({
         email,
@@ -46,27 +45,18 @@ exports.postLogin = async (req, res) => {
         return unauthorizedResponse(req, res, err.message);
     }
     logger.info(req, 'user found...', 'postLogin');
-    console.log([user.password]);
-    // console.log(password);
-    // console.log(await bcrypt.hash(password, 12));
-    // console.log(await bcrypt.compare(password, await bcrypt.hash(password, 12)));
-    // console.log(await bcrypt.compare(password, user.password));
 
     bcrypt.compare(password, user.password, async (error, isMatch) => {
-        console.log('error... 1', error);
-        console.log('isMatch... 1', isMatch);
 
         if (error) {
             console.log('error', error);
             const err = new Error('passwords do not match.');
-            logger.error(req, err.message, 'postLogin', customErrorMessages.statusCode.PASSWORD_NOT_MATCH);
+            logger.error(req, err.message, 'postLogin', customErrorMessages.statusCode.PASSWORD_DOES_NOT_MATCH);
             return unauthorizedResponse(req, res, err.message);
         }
         if (isMatch) {
             console.log('isMatch', isMatch);
             logger.info(req, 'passwords match...', 'postLogin');
-            if (user.next_signin_password === true)
-                return okResponse(req, res, { redirection: user.next_signin_password, email: user.email });
 
             const loginToken = Jwt.createToken(
                 { email: user.email, user_id: user._id },
@@ -87,7 +77,7 @@ exports.postLogin = async (req, res) => {
 
             const message = {
                 email: user.email,
-                login_token: loginToken,
+                access_token: loginToken,
                 user_id: user._id,
                 name: user.name,
                 username: user.username,
@@ -97,7 +87,7 @@ exports.postLogin = async (req, res) => {
         }
 
         const err = new Error('passwords do not match.');
-        logger.error(req, err.message, 'postLogin', customErrorMessages.statusCode.PASSWORD_NOT_MATCH);
+        logger.error(req, err.message, 'postLogin', customErrorMessages.statusCode.PASSWORD_DOES_NOT_MATCH);
 
         return unauthorizedResponse(req, res, err.message);
     });

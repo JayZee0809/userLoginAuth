@@ -64,7 +64,7 @@ module.exports = class UserService {
                     req,
                     error.message,
                     this.createUser.name,
-                    customErrorMessages.statusCode.CREATE_User_SUPER_User_ERROR
+                    customErrorMessages.statusCode.CREATE_USER_ERROR
                 );
 
                 return reject(error);
@@ -110,7 +110,7 @@ module.exports = class UserService {
                 req,
                 `Error : ${err.message}`,
                 this.createUserLoginToken.name,
-                customErrorMessages.statusCode.USER_LOGIN_TOKEN_ERROR
+                customErrorMessages.statusCode.USER_ACCESS_TOKEN_ERROR
             );
             throw err;
         } finally {

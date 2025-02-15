@@ -8,30 +8,29 @@ class Token {
 
         if (typeof bearerHearder !== 'undefined') {
             try {
-                // logger.info(`bearerHearder... ${bearerHearder}`);
                 const bearer = bearerHearder.split(' ');
                 const bearerToken = bearer[1];
                 const token_decoded = await Jwt.verifyToken(bearerToken);
 
                 const userLoginToken = await UserLoginToken.find(
                     {
-                        user_id : token_decoded.id,
-                        login_token : { $regex: bearerToken } 
+                        $and: [
+                            {user_id : token_decoded.user_id},
+                            {access_token : { $regex: bearerToken }} 
+                        ]
                     }
                 );
 
-                if (!userLoginToken) {
+                if (!userLoginToken || !userLoginToken.length) {
                     return unauthorizedResponse(req, res, 'User is unauthorized.');
                 }
-
-                console.log('authenticate', userLoginToken);
 
                 if (userLoginToken) {
                     req.user = token_decoded;
                     return next();
                 }
 
-                return unauthorizedResponse(req, res, 'User is logout.');
+                return unauthorizedResponse(req, res, 'User is logged out.');
             } catch (err) {
                 console.log(err);
                 return unauthorizedResponse(req, res, 'Token has expired.');

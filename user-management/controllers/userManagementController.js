@@ -11,29 +11,10 @@ const joiOptions = {
     stripUnknown: true // remove unknown props
 };
 
-// exports.getUsers = async (req, res) => {
-//     try {
-//         const result = await UserService.getUsers(req);
-
-//         switch (result) {
-//             case null:
-//                 logger.error(req, result, 'getUsers', customErrorMessages.statusCode.GET_USERS_ERROR);
-//                 return badRequestResponse(req, res, `No user data found`);
-
-//             default:
-//                 return okResponse(req, res, result);
-//         }
-//     } catch (error) {
-//         logger.error(req, error.message, 'getUsers', customErrorMessages.statusCode.GET_USERS_ERROR);
-
-//         return badRequestResponse(req, res, error);
-//     }
-// };
-
 exports.createUser = async (req, res) => {
     try {
         if (Object.keys(req.body).length === 0) return badRequestResponse(req, res, `Body is empty`);
-        const { name, password, email } = req.body;
+        const { name, password } = req.body;
 
         if (name.length < 4 || name.length > 50) {
             return badRequestResponse(req, res, 'Please insert minimum 4 character and maximum 50 characters only');
@@ -55,12 +36,6 @@ exports.createUser = async (req, res) => {
                 return badRequestResponse(req, res, `user already exists`);
 
             default:
-                const authBody = Buffer.from(`${email}:${password}`, "utf-8").toString(
-                    "base64"
-                );
-
-                console.log(authBody);
-                
                 return okResponse(req, res, result);
         }
     } catch (error) {
@@ -68,7 +43,7 @@ exports.createUser = async (req, res) => {
             req,
             error.message,
             'createUser',
-            customErrorMessages.statusCode.CREATE_USER
+            customErrorMessages.statusCode.CREATE_USER_ERROR
         );
 
         return badRequestResponse(req, res, error);
@@ -79,23 +54,26 @@ exports.getUserByEmailOrUsername = async (req, res) => {
     try {
         const { param } = req.body;
         if (!param) throw new Error('empty search params...')
+
+        const foundUser = await UserService.getUser(req, param);
+        if(!foundUser) return okResponse(req, res, {});
+
         const { 
             name,
             email,
-            password,
             username,
             country,
             dob,
             gender
-        } = await UserService.getUser(req, param);
-        const response = { name, email, password, username, country, dob, gender }
+        } = foundUser;
+        const response = { name, email, username, country, dob, gender }
 
         switch (response) {
             case null:
                 logger.error(
                     req,
                     result,
-                    'getUserById',
+                    'getUserByEmailOrUsername',
                     customErrorMessages.statusCode.GET_USER_ERROR
                 );
                 return badRequestResponse(req, res, `No user data found`);
@@ -107,7 +85,7 @@ exports.getUserByEmailOrUsername = async (req, res) => {
         logger.error(
             req,
             error.message,
-            'getUserById',
+            'getUserByEmailOrUsername',
             customErrorMessages.statusCode.GET_USER_ERROR
         );
 
